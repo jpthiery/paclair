@@ -141,8 +141,10 @@ class DockerRegistry(LoggedObject):
         resp = requests.get(url, verify=self.verify, headers={"Authorization": "Bearer {}".format(token)})
 
         if not resp.ok:
-            self.logger.error("MANIFESTS:HTTPCODEERROR:{}".format(resp.status_code))
-            raise RegistryAccessError("Error access to : {url} \nCode Error : {status_code}".format(
-                url=url, status_code=resp.status_code))
+            resp = requests.get(url, verify=self.verify, headers={"Authorization": "Basic {}".format(token)})
+            if not resp.ok:
+                self.logger.error("MANIFESTS:HTTPCODEERROR:{}".format(resp.status_code))
+                raise RegistryAccessError("Error access to : {url} \nCode Error : {status_code}".format(
+                    url=url, status_code=resp.status_code))
         else:
             return resp.json()
